@@ -1,0 +1,5 @@
+- name: Include top level directory
+  include_tasks: inner.yml
+  loop: "{{ directories }}"
+  loop_control:
+    loop_var: outer_item

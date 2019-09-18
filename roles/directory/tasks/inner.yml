@@ -1,0 +1,36 @@
+# debug  
+- debug:
+    msg: "outer: {{ outer_item.name }}"
+
+# current_directory_name points to the current name of the directory
+- set_fact:
+    current_directory_name: "{{ outer_item.name }}"
+
+# full_path is our absolute path of all directories we have already recursively visited
+- set_fact:
+     full_path: "{{ (full_path | default('/')) + current_directory_name + '/' }}"
+
+# debug
+- debug:
+    msg: "full_path: {{ full_path }}"
+
+# below the first hierarchy level we defined the variable "subdirectories" which contains all subdirectories of the current directory we are in
+- set_fact:
+    subdirectories: "{{ outer_item.directories }}"
+  when: outer_item.directories is defined
+
+# this is important: if we are in a leaf (a directory without subdirectories), we have to set the control variable "subdirectories" to an empty array
+- set_fact:
+    subdirectories: "{{ [] }}"
+  when: outer_item.directories is not defined
+
+# debug  
+- debug:
+    msg: "subdirectories {{ subdirectories }}"
+  when: subdirectories is defined
+
+# iterate over each subdirectory of the current oute_itemr.directories
+- include_tasks: inner.yml
+  loop: "{{ subdirectories }}"
+  loop_control:
+    loop_var: "outer_item"

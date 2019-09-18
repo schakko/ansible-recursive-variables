@@ -1,0 +1,6 @@
+directories:
+  - name: tmp
+    directories:
+      - name: dir1
+        directories:
+          - name: dir2
