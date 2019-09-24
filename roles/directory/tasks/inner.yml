@@ -34,3 +34,7 @@
   loop: "{{ subdirectories }}"
   loop_control:
     loop_var: "outer_item"
+
+# "pop" the last path element to pass the correct variable into the callee loop
+- set_fact:
+  full_path: "{{ full_path.split('/')[0:-2]|join('/') + '/' }}"
