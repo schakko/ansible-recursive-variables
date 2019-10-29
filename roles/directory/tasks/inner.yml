@@ -1,6 +1,7 @@
-# debug  
-- debug:
-    msg: "outer: {{ outer_item.name }}"
+- name: Slash im Namen  
+  fail:
+    msg: "Der Ordnername darf kein '/' enthalten."
+  when: outer_item.name is regex(".*/.*")
 
 # current_directory_name points to the current name of the directory
 - set_fact:
@@ -10,10 +11,23 @@
 - set_fact:
      full_path: "{{ (full_path | default('/')) + current_directory_name + '/' }}"
 
-# debug
-- debug:
-    msg: "full_path: {{ full_path }}"
+- set_fact:
+    new_permission_path: "{{ defaultPath }}{{ full_path }}"
 
+# Ansible ACL module is setting the document permission
+- name: Set Permission
+  acl:
+    path: "{{ new_permission_path | regex_replace('^\\/|\\/$', '')}}"
+    entity: "{{ permission_item.entity }}"
+    etype:  "{{ permission_item.etype }}"
+    permissions: "{{ permission_item.permission }}"
+    state: present
+  with_items:
+    - "{{ outer_item.permissions }}"
+  loop_control:
+    loop_var: permission_item
+
+    
 # below the first hierarchy level we defined the variable "subdirectories" which contains all subdirectories of the current directory we are in
 - set_fact:
     subdirectories: "{{ outer_item.directories }}"
@@ -24,17 +38,13 @@
     subdirectories: "{{ [] }}"
   when: outer_item.directories is not defined
 
-# debug  
-- debug:
-    msg: "subdirectories {{ subdirectories }}"
-  when: subdirectories is defined
 
 # iterate over each subdirectory of the current oute_itemr.directories
-- include_tasks: inner.yml
+- name: Loop Start
+  include_tasks: inner.yml
   loop: "{{ subdirectories }}"
   loop_control:
     loop_var: "outer_item"
 
-# "pop" the last path element to pass the correct variable into the callee loop
 - set_fact:
-  full_path: "{{ full_path.split('/')[0:-2]|join('/') + '/' }}"
+    full_path: "{{ full_path.split('/')[0:-2]|join('/') + '/' }}"

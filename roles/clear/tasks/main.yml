@@ -1,0 +1,3 @@
+# This Role is removing all ACL entries
+- name: Resetting File's / Folder's acl
+  shell: "setfacl -R -b {{defaultPath}}"

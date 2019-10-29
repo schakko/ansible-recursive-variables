@@ -1,4 +1,5 @@
 - name: Execute
   hosts: localhost
   roles:
+    - { role: clear }
     - { role: directory }

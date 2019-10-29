@@ -1,6 +1,13 @@
+defaultPath: folder
 directories:
-  - name: tmp
-    directories:
-      - name: dir1
-        directories:
-          - name: dir2
+  - name: Images_2019
+    type: folder
+    permissions:
+      - etype: user
+        entity: admin
+        permission: rwx
+
+      - etype: other
+        entity:
+        permission: ---
+    
